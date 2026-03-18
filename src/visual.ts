@@ -73,7 +73,7 @@ function toPx(n: number): string {
 // Data types
 // ---------------------------------------------------------------------------
 
-export enum D3JSVisualType {
+export enum pbiD3jsVisType {
     Js,
     Css,
     Object
@@ -107,7 +107,7 @@ export interface CompileOutput {
 // Visual class
 // ---------------------------------------------------------------------------
 
-export class D3JSVisual implements IVisual {
+export class pbiD3jsVis implements IVisual {
 
     // ---- Infrastructure ----
     private target: HTMLElement;
@@ -128,7 +128,7 @@ export class D3JSVisual implements IVisual {
     private D3jswidth: number  = 0;
     private D3jsheight: number = 0;
     private isHighContrast: boolean = false;
-    private open: D3JSVisualType = D3JSVisualType.Js;
+    private open: pbiD3jsVisType = pbiD3jsVisType.Js;
     private isSaved: boolean     = true;
     private reload: boolean      = false;
     private initialized: boolean = false;
@@ -250,16 +250,16 @@ export class D3JSVisual implements IVisual {
 
     private init(options: VisualUpdateOptions): void {
         const editorIcons = [
-            { title: "New",        class: D3JSVisual.New.className,    icon: this.IconSet.new,    selected: false },
-            { title: "Save",       class: D3JSVisual.Save.className,   icon: this.IconSet.save,   selected: false },
-            { title: "Reload",     class: D3JSVisual.Reload.className, icon: this.IconSet.reload, selected: false },
-            { title: "",           class: D3JSVisual.Space.className,  icon: this.IconSet.space,  selected: false },
-            { title: "JavaScript", class: D3JSVisual.Js.className,     icon: this.IconSet.js,     selected: true  },
-            { title: "Style",      class: D3JSVisual.Css.className,    icon: this.IconSet.css,    selected: false },
-            { title: "PBI object", class: D3JSVisual.Object.className, icon: this.IconSet.object, selected: false },
-            { title: "",           class: D3JSVisual.Space.className,  icon: this.IconSet.space,  selected: false },
-            { title: "Parse",      class: D3JSVisual.Parse.className,  icon: this.IconSet.parse,  selected: false },
-            { title: "Help",       class: D3JSVisual.Help.className,   icon: this.IconSet.help,   selected: false },
+            { title: "New",        class: pbiD3jsVis.New.className,    icon: this.IconSet.new,    selected: false },
+            { title: "Save",       class: pbiD3jsVis.Save.className,   icon: this.IconSet.save,   selected: false },
+            { title: "Reload",     class: pbiD3jsVis.Reload.className, icon: this.IconSet.reload, selected: false },
+            { title: "",           class: pbiD3jsVis.Space.className,  icon: this.IconSet.space,  selected: false },
+            { title: "JavaScript", class: pbiD3jsVis.Js.className,     icon: this.IconSet.js,     selected: true  },
+            { title: "Style",      class: pbiD3jsVis.Css.className,    icon: this.IconSet.css,    selected: false },
+            { title: "PBI object", class: pbiD3jsVis.Object.className, icon: this.IconSet.object, selected: false },
+            { title: "",           class: pbiD3jsVis.Space.className,  icon: this.IconSet.space,  selected: false },
+            { title: "Parse",      class: pbiD3jsVis.Parse.className,  icon: this.IconSet.parse,  selected: false },
+            { title: "Help",       class: pbiD3jsVis.Help.className,   icon: this.IconSet.help,   selected: false },
         ];
 
         this.viewport = options.viewport;
@@ -267,17 +267,17 @@ export class D3JSVisual implements IVisual {
         // Edit-mode container
         this.editContainer = d3.select<HTMLElement, unknown>(this.target)
             .append("div")
-            .classed(D3JSVisual.EditContainer.className, true) as d3.Selection<HTMLDivElement, unknown, null, undefined>;
+            .classed(pbiD3jsVis.EditContainer.className, true) as d3.Selection<HTMLDivElement, unknown, null, undefined>;
 
         const editorHeader = this.editContainer
             .append("div")
-            .classed(D3JSVisual.EditorHeader.className, true);
+            .classed(pbiD3jsVis.EditorHeader.className, true);
 
-        editorHeader.selectAll(D3JSVisual.Icon.selectorName)
+        editorHeader.selectAll(pbiD3jsVis.Icon.selectorName)
             .data(editorIcons)
             .enter()
             .append("div")
-            .classed(D3JSVisual.Icon.className, true)
+            .classed(pbiD3jsVis.Icon.className, true)
             .classed("selected", d => d.selected)
             .attr("tooltip", d => d.title)
             .attr("tabindex", d => d.title ? "0" : null)  // keyboard nav: skip spacers
@@ -295,7 +295,7 @@ export class D3JSVisual implements IVisual {
 
         this.messageBox = editorHeader
             .append("div")
-            .classed(D3JSVisual.MessageBoxEl.className, true)
+            .classed(pbiD3jsVis.MessageBoxEl.className, true)
             .style("display", "none") as d3.Selection<HTMLDivElement, unknown, null, undefined>;
 
         // Version label (visible in editor mode for debugging)
@@ -307,7 +307,7 @@ export class D3JSVisual implements IVisual {
             .style("line-height", "24px")
             .style("margin-right", "8px")
             .style("user-select", "text")
-            .text("v3.0.4.0");
+            .text("v3.0.7.0");
 
         // Debug copy button — copies last error to clipboard
         this.lastError = "";
@@ -322,7 +322,7 @@ export class D3JSVisual implements IVisual {
             .text("📋 Copy Debug")
             .on("click", () => {
                 const info = [
-                    "Visual: pbi-d3js-vis v3.0.4.0",
+                    "Visual: pbi-d3js-vis v3.0.7.0",
                     "API: 5.11.0",
                     "Last error: " + (this.lastError || "(none)"),
                     "Module parse: " + (() => { try { const r = UglifyJS.minify("const x=1;", {compress:false,mangle:false,module:true} as any) as any; return r.error ? "FAIL: "+r.error.message : "OK"; } catch(e) { return "EXCEPTION: "+e; } })(),
@@ -338,16 +338,16 @@ export class D3JSVisual implements IVisual {
         // CodeMirror textarea placeholder
         this.editContainer
             .append("textarea")
-            .classed(D3JSVisual.EditorTextArea.className, true);
+            .classed(pbiD3jsVis.EditorTextArea.className, true);
 
         // Render-mode container
         this.d3Container = d3.select<HTMLElement, unknown>(this.target)
             .append("div")
-            .classed(D3JSVisual.D3Container.className, true) as d3.Selection<HTMLDivElement, unknown, null, undefined>;
+            .classed(pbiD3jsVis.D3Container.className, true) as d3.Selection<HTMLDivElement, unknown, null, undefined>;
 
         this.d3jsFrame = this.d3Container
             .append("div")
-            .classed(D3JSVisual.D3jsFrame.className, true) as d3.Selection<HTMLDivElement, unknown, null, undefined>;
+            .classed(pbiD3jsVis.D3jsFrame.className, true) as d3.Selection<HTMLDivElement, unknown, null, undefined>;
 
         // Context menu (right-click) on the render area
         this.d3Container.on("contextmenu", (event: MouseEvent) => {
@@ -358,12 +358,12 @@ export class D3JSVisual implements IVisual {
         // Landing page — shown when no data or no JS code is present
         this.landingPage = d3.select<HTMLElement, unknown>(this.target)
             .append("div")
-            .classed(D3JSVisual.LandingPage.className, true)
+            .classed(pbiD3jsVis.LandingPage.className, true)
             .style("display", "none") as d3.Selection<HTMLDivElement, unknown, null, undefined>;
 
         this.buildLandingPage();
 
-        this.open = D3JSVisualType.Js;
+        this.open = pbiD3jsVisType.Js;
 
         this.hideMessageBox = {
             type: MessageBoxType.None,
@@ -518,7 +518,7 @@ export class D3JSVisual implements IVisual {
         // Destroy previous CodeMirror instance
         d3.selectAll(".CodeMirror").remove();
 
-        const textareaEl = document.querySelector(D3JSVisual.EditorTextArea.selectorName) as HTMLTextAreaElement;
+        const textareaEl = document.querySelector(pbiD3jsVis.EditorTextArea.selectorName) as HTMLTextAreaElement;
         this.editor = CodeMirror.fromTextArea(textareaEl, { lineNumbers: true });
 
         this.switchContext(textarea, this.open);
@@ -549,12 +549,12 @@ export class D3JSVisual implements IVisual {
 
         const logoWidth = Math.min(this.D3jswidth, 100);
 
-        const d3IconData = [{ title: "D3.js logo: (c) Mike Bostock", class: D3JSVisual.D3jsLogo.className, icon: this.IconSet.d3js }];
+        const d3IconData = [{ title: "D3.js logo: (c) Mike Bostock", class: pbiD3jsVis.D3jsLogo.className, icon: this.IconSet.d3js }];
 
-        this.d3Container.selectAll(D3JSVisual.D3jsLogo.selectorName).remove();
+        this.d3Container.selectAll(pbiD3jsVis.D3jsLogo.selectorName).remove();
 
         const d3logo = this.d3Container
-            .selectAll(D3JSVisual.D3jsLogo.selectorName)
+            .selectAll(pbiD3jsVis.D3jsLogo.selectorName)
             .data(d3IconData)
             .enter()
             .append("div")
@@ -594,7 +594,7 @@ export class D3JSVisual implements IVisual {
         }
 
         // Remove the logo overlay once user code has rendered
-        d3.selectAll(D3JSVisual.D3jsLogo.selectorName).remove();
+        d3.selectAll(pbiD3jsVis.D3jsLogo.selectorName).remove();
     }
 
     // ---------------------------------------------------------------------------
@@ -687,10 +687,10 @@ export class D3JSVisual implements IVisual {
     // Persistence
     // ---------------------------------------------------------------------------
 
-    private persist(code: string, type: D3JSVisualType): void {
-        if (type === D3JSVisualType.Object) { return; }
+    private persist(code: string, type: pbiD3jsVisType): void {
+        if (type === pbiD3jsVisType.Object) { return; }
 
-        const propId   = type === D3JSVisualType.Css ? this.visualProperties.d3jsCss : this.visualProperties.d3jsJs;
+        const propId   = type === pbiD3jsVisType.Css ? this.visualProperties.d3jsCss : this.visualProperties.d3jsJs;
         const props: { [key: string]: DataViewPropertyValue } = {};
         props[propId.propertyName] = code;
 
@@ -711,7 +711,7 @@ export class D3JSVisual implements IVisual {
     private registerEvents(textarea: d3.Selection<HTMLTextAreaElement, unknown, HTMLDivElement, unknown>): void {
 
         // New
-        this.editContainer.select(D3JSVisual.New.selectorName).on("click", () => {
+        this.editContainer.select(pbiD3jsVis.New.selectorName).on("click", () => {
             this.overwriteWarning.callback1 = () => {
                 this.reload = true;
                 this.persist("", this.open);
@@ -722,7 +722,7 @@ export class D3JSVisual implements IVisual {
         });
 
         // Save
-        this.editContainer.select(D3JSVisual.Save.selectorName).on("click", () => {
+        this.editContainer.select(pbiD3jsVis.Save.selectorName).on("click", () => {
             MessageBox.setMessageBox(this.hideMessageBox);
             if (this.parseCode(this.editor, this.open)) {
                 this.isSaved = true;
@@ -731,29 +731,29 @@ export class D3JSVisual implements IVisual {
         });
 
         // JS tab
-        this.editContainer.select(D3JSVisual.Js.selectorName).on("click", () => {
-            this.switchTab(textarea, D3JSVisualType.Js);
+        this.editContainer.select(pbiD3jsVis.Js.selectorName).on("click", () => {
+            this.switchTab(textarea, pbiD3jsVisType.Js);
         });
 
         // CSS tab
-        this.editContainer.select(D3JSVisual.Css.selectorName).on("click", () => {
-            this.switchTab(textarea, D3JSVisualType.Css);
+        this.editContainer.select(pbiD3jsVis.Css.selectorName).on("click", () => {
+            this.switchTab(textarea, pbiD3jsVisType.Css);
         });
 
         // Object (read-only PBI header) tab
-        this.editContainer.select(D3JSVisual.Object.selectorName).on("click", () => {
-            this.switchTab(textarea, D3JSVisualType.Object);
+        this.editContainer.select(pbiD3jsVis.Object.selectorName).on("click", () => {
+            this.switchTab(textarea, pbiD3jsVisType.Object);
         });
 
         // Parse / validate
-        this.editContainer.select(D3JSVisual.Parse.selectorName).on("click", () => {
+        this.editContainer.select(pbiD3jsVis.Parse.selectorName).on("click", () => {
             MessageBox.setMessageBox(this.hideMessageBox);
             this.parseCode(this.editor, this.open);
         });
 
         // Reload from saved
-        this.editContainer.select(D3JSVisual.Reload.selectorName).on("click", () => {
-            const code = this.open === D3JSVisualType.Css ? this.cssCode : this.jsCode;
+        this.editContainer.select(pbiD3jsVis.Reload.selectorName).on("click", () => {
+            const code = this.open === pbiD3jsVisType.Css ? this.cssCode : this.jsCode;
             this.reload = true;
             textarea.text(code);
             this.editor.setValue(code);
@@ -761,7 +761,7 @@ export class D3JSVisual implements IVisual {
         });
 
         // Help
-        this.editContainer.select(D3JSVisual.Help.selectorName).on("click", () => {
+        this.editContainer.select(pbiD3jsVis.Help.selectorName).on("click", () => {
             this.host.launchUrl(this.helpUrl);
         });
     }
@@ -769,7 +769,7 @@ export class D3JSVisual implements IVisual {
     /** Handle tab switch with optional unsaved-changes prompt */
     private switchTab(
         textarea: d3.Selection<HTMLTextAreaElement, unknown, HTMLDivElement, unknown>,
-        targetType: D3JSVisualType
+        targetType: pbiD3jsVisType
     ): void {
         MessageBox.setMessageBox(this.hideMessageBox);
         if (!this.parseCode(this.editor, this.open)) { return; }
@@ -791,7 +791,7 @@ export class D3JSVisual implements IVisual {
 
     private switchContext(
         textarea: d3.Selection<HTMLTextAreaElement, unknown, HTMLDivElement, unknown>,
-        type: D3JSVisualType
+        type: pbiD3jsVisType
     ): void {
         let code: string;
         let mode: string;
@@ -799,18 +799,18 @@ export class D3JSVisual implements IVisual {
         let openType = type;
 
         switch (type) {
-            case D3JSVisualType.Css:
+            case pbiD3jsVisType.Css:
                 code     = this.cssCode;
                 mode     = "css";
                 readOnly = false;
                 break;
-            case D3JSVisualType.Object:
+            case pbiD3jsVisType.Object:
                 code     = this.buildHeaderView(this.data, this.D3jsheight, this.D3jswidth);
                 mode     = "javascript";
                 readOnly = "nocursor";
-                openType = D3JSVisualType.Js;  // don't allow persist of read-only view
+                openType = pbiD3jsVisType.Js;  // don't allow persist of read-only view
                 break;
-            case D3JSVisualType.Js:
+            case pbiD3jsVisType.Js:
             default:
                 code     = this.jsCode;
                 mode     = "javascript";
@@ -833,8 +833,8 @@ export class D3JSVisual implements IVisual {
     // JS parse / validation (UglifyJS)
     // ---------------------------------------------------------------------------
 
-    private parseCode(editor: CodeMirror.EditorFromTextArea, type: D3JSVisualType): boolean {
-        if (type !== D3JSVisualType.Js) { return true; }
+    private parseCode(editor: CodeMirror.EditorFromTextArea, type: pbiD3jsVisType): boolean {
+        if (type !== pbiD3jsVisType.Js) { return true; }
 
         const result = UglifyJS.minify(editor.getValue(), { compress: false, mangle: false, module: true } as any) as unknown as CompileOutput;
 
@@ -875,16 +875,16 @@ export class D3JSVisual implements IVisual {
     // Icon highlight helpers
     // ---------------------------------------------------------------------------
 
-    private switchIcons(type: D3JSVisualType): void {
-        this.editContainer.select(D3JSVisual.Js.selectorName).classed("selected",     type === D3JSVisualType.Js);
-        this.editContainer.select(D3JSVisual.Css.selectorName).classed("selected",    type === D3JSVisualType.Css);
-        this.editContainer.select(D3JSVisual.Object.selectorName).classed("selected", type === D3JSVisualType.Object);
+    private switchIcons(type: pbiD3jsVisType): void {
+        this.editContainer.select(pbiD3jsVis.Js.selectorName).classed("selected",     type === pbiD3jsVisType.Js);
+        this.editContainer.select(pbiD3jsVis.Css.selectorName).classed("selected",    type === pbiD3jsVisType.Css);
+        this.editContainer.select(pbiD3jsVis.Object.selectorName).classed("selected", type === pbiD3jsVisType.Object);
     }
 
-    private getSelectedType(): D3JSVisualType {
-        if (this.editContainer.select(D3JSVisual.Js.selectorName).classed("selected"))     { return D3JSVisualType.Js;     }
-        if (this.editContainer.select(D3JSVisual.Css.selectorName).classed("selected"))    { return D3JSVisualType.Css;    }
-        if (this.editContainer.select(D3JSVisual.Object.selectorName).classed("selected")) { return D3JSVisualType.Object; }
-        return D3JSVisualType.Js; // default
+    private getSelectedType(): pbiD3jsVisType {
+        if (this.editContainer.select(pbiD3jsVis.Js.selectorName).classed("selected"))     { return pbiD3jsVisType.Js;     }
+        if (this.editContainer.select(pbiD3jsVis.Css.selectorName).classed("selected"))    { return pbiD3jsVisType.Css;    }
+        if (this.editContainer.select(pbiD3jsVis.Object.selectorName).classed("selected")) { return pbiD3jsVisType.Object; }
+        return pbiD3jsVisType.Js; // default
     }
 }

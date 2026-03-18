@@ -1,10 +1,10 @@
 {
     "visual": {
-        "name": "pbi-d3js-vis",
+        "name": "pbiD3jsVis",
         "displayName": "pbi-d3js-vis",
         "guid": "D3JSVisual_PBI_CV_CDD143DEC3A145E7A507B562AF6CF490",
-        "visualClassName": "D3JSVisual",
-        "version": "3.0.4.0",
+        "visualClassName": "pbiD3jsVis",
+        "version": "3.0.7.0",
         "description": "Write custom D3.js v7 visualizations directly inside Power BI",
         "supportUrl": "https://behnamebrahimisbuhb.github.io/pbi-d3js-vis/",
         "gitHubUrl": "https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis"
@@ -12,7 +12,7 @@
     "apiVersion": "5.11.0",
     "author": {
         "name": "Behnam Ebrahimi",
-        "email": "behnam.ebrahimi@sbu.ac.ir"
+        "email": "behnam.ebrahimi@XXX.com"
     },
     "assets": {
         "icon": "assets/icon.png"
