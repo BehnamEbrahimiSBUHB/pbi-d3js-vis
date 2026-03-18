@@ -230,6 +230,10 @@ export class D3JSVisual implements IVisual {
             colorPalette:      this.host.colorPalette,
             host:              this.host,
         };
+
+        // Required so child elements with position:absolute are contained correctly
+        this.target.style.position = "relative";
+        this.target.style.overflow = "hidden";
     }
 
     // ---------------------------------------------------------------------------
@@ -372,7 +376,10 @@ export class D3JSVisual implements IVisual {
 
             // Landing page: show when not in edit mode AND (no data OR no code)
             const showLanding = !inEditMode && (!hasData || this.jsCode === "");
-            this.landingPage.style("display",   showLanding  ? "flex"   : "none");
+            this.landingPage
+                .style("display", showLanding ? "flex" : "none")
+                .style("width",   toPx(this.viewport.width))
+                .style("height",  toPx(this.viewport.height));
             this.editContainer.style("display", inEditMode   ? "inline" : "none");
             this.d3Container.style("display",   (!inEditMode && !showLanding) ? "inline" : "none");
 

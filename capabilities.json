@@ -65,6 +65,7 @@
         }
     },
     "supportsLandingPage": true,
+    "supportsEmptyDataView": true,
     "supportsKeyboardFocus": true,
     "supportsMultiVisualSelection": true,
     "advancedEditModeSupport": 2,
