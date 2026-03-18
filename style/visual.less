@@ -1,27 +1,32 @@
-@import (less) "node_modules/codemirror/lib/codemirror.css";
-@import (less) "node_modules/codemirror/addon/dialog/dialog.css";
+// CodeMirror CSS — imported via node_modules (resolved by webpack less-loader)
+@import (less) "~codemirror/lib/codemirror.css";
+@import (less) "~codemirror/addon/dialog/dialog.css";
 
-.d3jsframe>iframe {
-    border: none;
-    overflow: hidden;
+// -----------------------------------------------------------------------
+// Editor chrome
+// -----------------------------------------------------------------------
+
+.d3jsframe > svg,
+.d3jsframe > div {
+    display: block;
 }
 
 .d3jslogo {
     position: absolute;
-    top: 0px;
+    top: 0;
     background-color: #fff;
 }
 
 .fading {
     opacity: 0;
     animation: fadeinout 5s ease infinite;
-    animation-delay: 2s
+    animation-delay: 2s;
 }
 
 @keyframes fadeinout {
-    0%        { opacity:0 }
-    70%       { opacity:1 }
-    100%, 90% { opacity:0 }
+    0%        { opacity: 0; }
+    70%       { opacity: 1; }
+    90%, 100% { opacity: 0; }
 }
 
 .editorHeader {
@@ -39,16 +44,28 @@
     cursor: pointer;
     margin: 0 4px;
     padding: 1px;
+    color: #4a4a4a;
 }
 
-.icon>svg {
+.icon > svg {
     height: 18px;
     width: 18px;
     padding: 1px;
 }
 
+.icon:hover,
+.icon:focus {
+    color: #a6a6a6;
+    outline: none;
+}
+
+.icon:focus-visible {
+    outline: 2px solid #0078d4;
+    outline-offset: 1px;
+}
+
 .selected {
-    padding: 0px;
+    padding: 0;
     background-color: #efefef;
     border: 1px solid silver;
 }
@@ -56,27 +73,21 @@
 .inlineBtn {
     display: inline-block;
     margin-left: 4px;
-    padding: 0px 4px 0px 4px;    
+    padding: 0 4px;
     background-color: #efefef;
     border: 1px solid silver;
     color: #212121;
+    cursor: pointer;
 }
 
-.inlineBtn:hover {
-    color: silver;
-}
+.inlineBtn:hover  { color: silver; }
 
-.space {
-    width: 6px;
-}
-
-.space>svg {
-    width: 4px;
-}
+.space     { width: 6px; }
+.space > svg { width: 4px; }
 
 .help {
-    float:right;
-    display:flex;
+    float: right;
+    display: flex;
 }
 
 .messageBox {
@@ -85,17 +96,9 @@
     vertical-align: top;
 }
 
-.info {
-    color: inherit;
-}
-
-.warning {
-    color: rgb(242,200,17);
-}
-
-.error {
-    color: #E81123;
-}
+.info    { color: inherit; }
+.warning { color: rgb(242, 200, 17); }
+.error   { color: #E81123; }
 
 [tooltip]:before {
     content: attr(tooltip);
@@ -104,7 +107,7 @@
     transition: all 0.15s ease;
     padding: 1px;
     color: #333;
-    box-shadow: 2px 2px 1px silver;    
+    box-shadow: 2px 2px 1px silver;
 }
 
 [tooltip]:hover:before {
@@ -120,4 +123,125 @@
 
 [tooltip]:not([tooltip-persistent]):before {
     pointer-events: none;
+}
+
+// -----------------------------------------------------------------------
+// Landing page
+// -----------------------------------------------------------------------
+
+.landing-page {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    z-index: 10;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.landing-page-inner {
+    max-width: 400px;
+    padding: 32px 24px;
+    text-align: center;
+}
+
+.landing-logo {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+}
+
+.landing-logo svg {
+    width: 72px;
+    height: 72px;
+}
+
+.landing-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #252423;
+    margin: 0 0 8px;
+}
+
+.landing-desc {
+    font-size: 13px;
+    color: #605e5c;
+    margin: 0 0 24px;
+}
+
+.landing-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px;
+    text-align: left;
+}
+
+.landing-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.landing-step-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #F26D58;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.landing-step-body {
+    font-size: 13px;
+    color: #323130;
+    line-height: 1.5;
+}
+
+.landing-step-body strong {
+    display: block;
+    color: #252423;
+    font-weight: 600;
+}
+
+.landing-step-body code {
+    background: #f3f2f1;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-size: 12px;
+    color: #a4262c;
+    font-family: 'Cascadia Code', Consolas, monospace;
+}
+
+.landing-link {
+    display: inline-block;
+    font-size: 13px;
+    color: #F26D58;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s ease;
+}
+
+.landing-link:hover,
+.landing-link:focus {
+    border-color: #F26D58;
+    outline: none;
+}
+
+// -----------------------------------------------------------------------
+// High-contrast overrides  (Windows high-contrast / forced-colors mode)
+// -----------------------------------------------------------------------
+
+@media (forced-colors: active) {
+    .icon        { forced-color-adjust: auto; }
+    .landing-step-num { background: ButtonText; color: ButtonFace; }
+    .landing-link { color: LinkText; border-color: LinkText; }
+    .inlineBtn   { forced-color-adjust: auto; }
 }

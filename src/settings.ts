@@ -1,68 +1,83 @@
 /*
- *
+ * Power BI D3.js Visual
  * Copyright (c) 2018 Jan Pieter Posthuma / DataScenarios
- *
- * All rights reserved.
- *
- * MIT License.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- *  all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- *  THE SOFTWARE.
+ * MIT License
  */
 
-module powerbi.extensibility.visual {
-    "use strict";
-    import DataViewObjectsParser = powerbi.extensibility.utils.dataview.DataViewObjectsParser;
+"use strict";
 
-    export class Settings extends DataViewObjectsParser {
-        public general: GeneralSettings = new GeneralSettings();
-        public margin: MarginSettings = new MarginSettings();
-        public colors: ColorSettings = new ColorSettings();
-    }
+import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 
-    export class GeneralSettings {
-        public js: string = "";
-        public css: string = "";
+// Power BI default theme palette used as initial color defaults
+const DEFAULT_COLORS: string[] = [
+    "#01B8AA", "#374649", "#FD625E", "#F2C80F",
+    "#5F6B6D", "#8AD4EB", "#FE9666", "#A66999"
+];
 
-        public iFrame: string = `<iframe id="d3js-sandbox" class="d3js-sandbox" width="#width" height="#height" style="width:#widthpx;height:#heightpx;margin-top:#toppx;margin-left:#leftpx" src="data:text/html,#src" sandbox="allow-scripts"></iframe>`;
-        public d3Document: string = `<html><head><script src='https://d3js.org/d3.v3.min.js'></script><style id='d3js-css'>#style</style><script>window.addEventListener('message', function (e) {var mainWindow=e.source;try {document.getElementById('chart').innerHTML="";eval(e.data);} catch (ex) {console.log('D3js code threw an exception: ' + ex);} mainWindow.postMessage("",e.origin);});</script></head><body style="margin:0px;"><svg class="chart" id="chart"></svg></body></html>`;
-        public d3SVG: string = `<svg class="chart" id="chart" width="#width" height="#height"></svg>`;
-        public d3CSS: string = `<style>#style</style>`;
-        public d3jsError: string = `<div class="d3jsError">#error</div>`;
+// ---------------------------------------------------------------------------
+// Margin card
+// ---------------------------------------------------------------------------
+class MarginCard extends formattingSettings.SimpleCard {
+    public top = new formattingSettings.NumUpDown({
+        name: "top", displayName: "Top", value: 2
+    });
+    public bottom = new formattingSettings.NumUpDown({
+        name: "bottom", displayName: "Bottom", value: 2
+    });
+    public left = new formattingSettings.NumUpDown({
+        name: "left", displayName: "Left", value: 2
+    });
+    public right = new formattingSettings.NumUpDown({
+        name: "right", displayName: "Right", value: 2
+    });
 
-        public helpUrl: string = `https://azurebi.jppp.org/power-bi-d3js-visual/`;
-    }
+    public name: string = "margin";
+    public displayName: string = "Margin";
+    public slices = [this.top, this.bottom, this.left, this.right];
+}
 
-    export class MarginSettings {
-        public top: number = 2;
-        public bottom: number = 2;
-        public left: number = 2;
-        public right: number = 2;
-    }
+// ---------------------------------------------------------------------------
+// Colors card
+// ---------------------------------------------------------------------------
+class ColorsCard extends formattingSettings.SimpleCard {
+    public color1 = new formattingSettings.ColorPicker({
+        name: "color1", displayName: "Color 1", value: { value: DEFAULT_COLORS[0] }
+    });
+    public color2 = new formattingSettings.ColorPicker({
+        name: "color2", displayName: "Color 2", value: { value: DEFAULT_COLORS[1] }
+    });
+    public color3 = new formattingSettings.ColorPicker({
+        name: "color3", displayName: "Color 3", value: { value: DEFAULT_COLORS[2] }
+    });
+    public color4 = new formattingSettings.ColorPicker({
+        name: "color4", displayName: "Color 4", value: { value: DEFAULT_COLORS[3] }
+    });
+    public color5 = new formattingSettings.ColorPicker({
+        name: "color5", displayName: "Color 5", value: { value: DEFAULT_COLORS[4] }
+    });
+    public color6 = new formattingSettings.ColorPicker({
+        name: "color6", displayName: "Color 6", value: { value: DEFAULT_COLORS[5] }
+    });
+    public color7 = new formattingSettings.ColorPicker({
+        name: "color7", displayName: "Color 7", value: { value: DEFAULT_COLORS[6] }
+    });
+    public color8 = new formattingSettings.ColorPicker({
+        name: "color8", displayName: "Color 8", value: { value: DEFAULT_COLORS[7] }
+    });
 
-    export class ColorSettings {
-        public color1: string = "";
-        public color2: string = "";
-        public color3: string = "";
-        public color4: string = "";
-        public color5: string = "";
-        public color6: string = "";
-        public color7: string = "";
-        public color8: string = "";
-    }
+    public name: string = "colors";
+    public displayName: string = "Colors";
+    public slices = [
+        this.color1, this.color2, this.color3, this.color4,
+        this.color5, this.color6, this.color7, this.color8
+    ];
+}
+
+// ---------------------------------------------------------------------------
+// Root model (exposed to FormattingSettingsService)
+// ---------------------------------------------------------------------------
+export class VisualFormattingSettingsModel extends formattingSettings.Model {
+    public margin = new MarginCard();
+    public colors = new ColorsCard();
+    public cards = [this.margin, this.colors];
 }

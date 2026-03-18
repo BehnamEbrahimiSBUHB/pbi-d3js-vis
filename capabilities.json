@@ -17,7 +17,7 @@
                         "top": { "count": 30000 }
                     }
                 }
-            }    
+            }
         }
     ],
     "objects": {
@@ -28,84 +28,46 @@
                     "type": { "formatting": { "labelDisplayUnits": false } }
                 },
                 "js": {
-                    "type": {
-                        "text": true
-                    }
+                    "type": { "text": true }
                 },
                 "css": {
-                    "type" : {
-                        "text": true
-                    }
+                    "type": { "text": true }
                 }
             }
         },
-        "margin" : {
+        "margin": {
             "displayName": "Margin",
             "properties": {
-                "top": {
-                    "displayName": "Top",
-                    "type": {
-                        "numeric": true
-                    }
-                },
-                "bottom": {
-                    "displayName": "Bottom",
-                    "type": {
-                        "numeric": true
-                    }
-                },
-                "left": {
-                    "displayName": "Left",
-                    "type": {
-                        "numeric": true
-                    }
-                },
-                "right": {
-                    "displayName": "Right",
-                    "type": {
-                        "numeric": true
-                    }
-                }
+                "top":    { "displayName": "Top",    "type": { "numeric": true } },
+                "bottom": { "displayName": "Bottom", "type": { "numeric": true } },
+                "left":   { "displayName": "Left",   "type": { "numeric": true } },
+                "right":  { "displayName": "Right",  "type": { "numeric": true } }
             }
         },
-        "colors" : {
+        "colors": {
             "displayName": "Colors",
             "properties": {
-                "color1": {
-                    "displayName": "Color 1",
-                    "type": { "fill": { "solid": { "color": true } } }
-                },
-                "color2": {
-                    "displayName": "Color 2",
-                    "type": { "fill": { "solid": { "color": true } } }
-                },
-                "color3": {
-                    "displayName": "Color 3",
-                    "type": { "fill": { "solid": { "color": true } } }
-                },
-                "color4": {
-                    "displayName": "Color 4",
-                    "type": { "fill": { "solid": { "color": true } } }
-                },
-                "color5": {
-                    "displayName": "Color 5",
-                    "type": { "fill": { "solid": { "color": true } } }
-                },
-                "color6": {
-                    "displayName": "Color 6",
-                    "type": { "fill": { "solid": { "color": true } } }
-                },
-                "color7": {
-                    "displayName": "Color 7",
-                    "type": { "fill": { "solid": { "color": true } } }
-                },
-                "color8": {
-                    "displayName": "Color 8",
-                    "type": { "fill": { "solid": { "color": true } } }
-                }
+                "color1": { "displayName": "Color 1", "type": { "fill": { "solid": { "color": true } } } },
+                "color2": { "displayName": "Color 2", "type": { "fill": { "solid": { "color": true } } } },
+                "color3": { "displayName": "Color 3", "type": { "fill": { "solid": { "color": true } } } },
+                "color4": { "displayName": "Color 4", "type": { "fill": { "solid": { "color": true } } } },
+                "color5": { "displayName": "Color 5", "type": { "fill": { "solid": { "color": true } } } },
+                "color6": { "displayName": "Color 6", "type": { "fill": { "solid": { "color": true } } } },
+                "color7": { "displayName": "Color 7", "type": { "fill": { "solid": { "color": true } } } },
+                "color8": { "displayName": "Color 8", "type": { "fill": { "solid": { "color": true } } } }
             }
         }
     },
+    "tooltips": {
+        "supportedTypes": {
+            "default": true,
+            "canvas": true
+        }
+    },
+    "supportsLandingPage": true,
+    "supportsKeyboardFocus": true,
+    "supportsMultiVisualSelection": true,
     "advancedEditModeSupport": 2,
-    "suppressDefaultTitle": true
+    "suppressDefaultTitle": true,
+    "privileges": []
 }

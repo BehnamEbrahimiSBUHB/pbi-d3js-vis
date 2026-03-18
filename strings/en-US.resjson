@@ -1,0 +1,18 @@
+{
+    "LandingPage_Title":       "D3.js Visual for Power BI",
+    "LandingPage_Description": "Write custom D3.js v7 visualizations directly inside Power BI.",
+    "LandingPage_Step1_Title": "Connect your data",
+    "LandingPage_Step1_Desc":  "Drag fields into the Dataset bucket in the Fields pane.",
+    "LandingPage_Step2_Title": "Open the editor",
+    "LandingPage_Step2_Desc":  "Click the pencil (Focus mode) icon in the visual's top-right corner.",
+    "LandingPage_Step3_Title": "Write D3.js v7 code",
+    "LandingPage_Step3_Desc":  "Use d3 and pbi.dsv() for data access. Press Save to run.",
+    "LandingPage_DocLink":     "View documentation →",
+    "Editor_SaveWarning":      "Warning: File is not saved. Save now?",
+    "Editor_OverwriteWarning": "Warning: Remove current content?",
+    "Editor_ParseError":       "Parse error:",
+    "Editor_SelectWarning":    "Replace d3.select(\"svg\") with d3.select(\"#chart\")",
+    "Button_Yes":              "Yes",
+    "Button_No":               "No",
+    "Button_Cancel":           "Cancel"
+}

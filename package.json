@@ -1,25 +1,26 @@
 {
-  "name": "visual",
-  "dependencies": {
-    "codemirror": "^5.32.0",
-    "d3": "^3.5.17",
-    "jquery": "^3.2.1",
-    "powerbi-visuals-utils-dataviewutils": "^1.2.0",
-    "powerbi-visuals-utils-interactivityutils": "^1.0.0",
-    "powerbi-visuals-utils-svgutils": "^1.1.0",
-    "uglify-js": "^3.1.10"
-  },
-  "devDependencies": {
-    "@types/codemirror": "^0.0.52",
-    "@types/d3": "3.5.36",
-    "@types/jquery": "2.0.41",
-    "@types/uglify-js": "^2.6.29",
-    "rollup-plugin-buble": "^0.18.0",
-    "powerbi-visuals-tools": "^1.9.0",
-    "tslint": "5.4.3",
-    "tslint-microsoft-contrib": "^5.0.0"
-  },
-  "scripts": {
-    "postinstall": "pbiviz update 1.7.0 && rollup -c rollup.config.js"
-  }
+    "name": "visual",
+    "scripts": {
+        "pbiviz": "pbiviz",
+        "start": "pbiviz start",
+        "package": "pbiviz package",
+        "lint": "npx eslint ."
+    },
+    "dependencies": {
+        "codemirror": "^5.65.17",
+        "d3": "^7.9.0",
+        "powerbi-visuals-utils-formattingmodel": "^6.2.2",
+        "uglify-js": "^3.19.3"
+    },
+    "devDependencies": {
+        "@types/codemirror": "^5.60.17",
+        "@types/d3": "^7.4.3",
+        "@types/uglify-js": "^3.17.5",
+        "@typescript-eslint/eslint-plugin": "^8.8.0",
+        "eslint": "^9.11.1",
+        "eslint-plugin-powerbi-visuals": "^1.0.0",
+        "powerbi-visuals-api": "~5.11.0",
+        "powerbi-visuals-tools": "^7.0.2",
+        "typescript": "5.5.4"
+    }
 }
