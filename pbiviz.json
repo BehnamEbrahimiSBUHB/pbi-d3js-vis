@@ -6,7 +6,7 @@
         "visualClassName": "D3JSVisual",
         "version": "2.0.0.0",
         "description": "Write custom D3.js v7 visualizations directly inside Power BI",
-        "supportUrl": "https://azurebi.jppp.org/power-bi-d3js-visual/",
+        "supportUrl": "https://behnamebrahimisbuhb.github.io/pbi-d3js-vis/",
         "gitHubUrl": "https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis"
     },
     "apiVersion": "5.11.0",

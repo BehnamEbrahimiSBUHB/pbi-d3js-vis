@@ -173,7 +173,7 @@ export class D3JSVisual implements IVisual {
         d3jsCss: <DataViewObjectPropertyIdentifier>{ objectName: "general", propertyName: "css" },
     };
 
-    private readonly helpUrl = "https://azurebi.jppp.org/power-bi-d3js-visual/";
+    private readonly helpUrl = "https://behnamebrahimisbuhb.github.io/pbi-d3js-vis/";
 
     // ---- Inline SVG icon set (MDL-style) ----
     private readonly IconSet = {
