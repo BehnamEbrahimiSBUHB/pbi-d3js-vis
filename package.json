@@ -7,15 +7,14 @@
         "lint": "npx eslint ."
     },
     "dependencies": {
+        "acorn": "^8.16.0",
         "codemirror": "^5.65.17",
         "d3": "^7.9.0",
-        "powerbi-visuals-utils-formattingmodel": "^6.2.2",
-        "uglify-js": "^3.19.3"
+        "powerbi-visuals-utils-formattingmodel": "^6.2.2"
     },
     "devDependencies": {
         "@types/codemirror": "^5.60.17",
         "@types/d3": "^7.4.3",
-        "@types/uglify-js": "^3.17.5",
         "@typescript-eslint/eslint-plugin": "^8.8.0",
         "eslint": "^9.11.1",
         "eslint-plugin-powerbi-visuals": "^1.0.0",

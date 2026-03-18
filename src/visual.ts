@@ -16,7 +16,7 @@ import "codemirror/mode/css/css";
 import "codemirror/addon/dialog/dialog";
 import "codemirror/addon/search/search";
 import "codemirror/addon/search/searchcursor";
-import * as UglifyJS from "uglify-js";
+import * as acorn from "acorn";
 
 import powerbi from "powerbi-visuals-api";
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
@@ -38,7 +38,7 @@ import { MessageBoxType, MessageBoxOptions, MessageBox } from "./messagebox";
 import { VisualFormattingSettingsModel } from "./settings";
 
 // ---------------------------------------------------------------------------
-const VERSION = "3.2.0.0";
+const VERSION = "3.3.0.0";
 
 interface CAS { className: string; selectorName: string; }
 function cas(n: string): CAS { return { className: n, selectorName: `.${n}` }; }
@@ -48,7 +48,6 @@ export enum VisualEditorTab { Js, Css, Object }
 
 export interface D3JSDataObjects { dataObjects: D3JSDataObject[]; }
 export interface D3JSDataObject { columnName: string; values: PrimitiveValue[]; }
-interface CompileOutput { code?: string; error?: { col: number; line: number; message: string; pos?: number; filename?: string; stack?: string }; }
 
 // ---------------------------------------------------------------------------
 export class pbiD3jsVis implements IVisual {
@@ -271,7 +270,7 @@ export class pbiD3jsVis implements IVisual {
         hdr.append("div").style("float","right").style("font","10px Consolas").style("color","#c00")
             .style("line-height","24px").style("margin-right","6px").style("cursor","pointer")
             .text("📋Debug").on("click", () => {
-                const info = `pbi-d3js-vis v${VERSION}\nError: ${this.lastError || "(none)"}\nUglify module: ${(() => { try { const r = (UglifyJS as any).minify("const x=1;",{compress:false,mangle:false,module:true}); return r.error ? "FAIL:"+r.error.message : "OK"; } catch(e2) { return "EX:"+e2; } })()}`;
+                const info = `pbi-d3js-vis v${VERSION}\nError: ${this.lastError || "(none)"}\nParser: acorn ${(acorn as any).version || "?"}\nParse test: ${(() => { try { acorn.parse("const x=1;",{ecmaVersion:2020,sourceType:"module"}); return "OK"; } catch(e2) { return "FAIL:"+e2; } })()}`;
                 try { navigator.clipboard.writeText(info); } catch (_) { /* noop */ }
                 try { window.prompt("Debug info:", info); } catch (_) { /* noop */ }
             });
@@ -484,17 +483,26 @@ export class pbiD3jsVis implements IVisual {
     // ===== JS PARSE =====
     private parseJS(ed: CodeMirror.EditorFromTextArea, tab: VisualEditorTab): boolean {
         if (tab !== VisualEditorTab.Js) return true;
-        const result = (UglifyJS as any).minify(ed.getValue(), {compress:false,mangle:false,module:true}) as CompileOutput;
+        const code = ed.getValue();
+        try {
+            acorn.parse(code, { ecmaVersion: 2020, sourceType: "module" });
+        } catch (e: any) {
+            const line = e.loc?.line ?? 1;
+            const col  = e.loc?.column ?? 0;
+            const msg  = e.message?.replace(/\s*\(\d+:\d+\)$/, "") ?? String(e);
+            this.lastError = `Parse: ${msg} @${line}:${col}`;
+            MessageBox.setMessageBox({ type: MessageBoxType.Error, base: this.msgBox, text: `Parse error: ${msg} at (${line}:${col})` });
+            ed.getDoc().setSelection({ line: line-1, ch: col }, { line: line-1, ch: col+1 }); ed.focus();
+            return false;
+        }
+        // Warn about d3.select("svg")
         const cur = ed.getDoc().getSearchCursor('d3.select("svg")');
         if (cur.findNext()) {
-            result.error = { message: `Replace 'd3.select("svg")' with 'd3.select("#chart")'`, line: cur.from().line+1, col: cur.from().ch };
-        }
-        if (result.error) {
-            const {message,line,col} = result.error;
-            const len = message.startsWith("Replace") ? 16 : 1;
-            this.lastError = `Parse: ${message} @${line}:${col}`;
-            MessageBox.setMessageBox({ type:MessageBoxType.Error, base:this.msgBox, text:`Parse error: ${message} at (${line}:${col})` });
-            ed.getDoc().setSelection({line:line-1,ch:col},{line:line-1,ch:col+len}); ed.focus();
+            const line = cur.from().line + 1, col = cur.from().ch;
+            const msg = `Replace 'd3.select("svg")' with 'd3.select("#chart")'`;
+            this.lastError = msg;
+            MessageBox.setMessageBox({ type: MessageBoxType.Error, base: this.msgBox, text: `${msg} at (${line}:${col})` });
+            ed.getDoc().setSelection(cur.from(), cur.to()); ed.focus();
             return false;
         }
         return true;
