@@ -1,7 +1,7 @@
 {
     "visual": {
-        "name": "d3jsvisual",
-        "displayName": "D3JSVisual",
+        "name": "pbi-d3js-vis",
+        "displayName": "pbi-d3js-vis",
         "guid": "D3JSVisual_PBI_CV_CDD143DEC3A145E7A507B562AF6CF490",
         "visualClassName": "D3JSVisual",
         "version": "3.0.0.0",
