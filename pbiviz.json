@@ -4,7 +4,7 @@
         "displayName": "pbi-d3js-vis",
         "guid": "pbiD3jsVis_43314BA108717C33B1C30F439E310190",
         "visualClassName": "pbiD3jsVis",
-        "version": "3.1.1.0",
+        "version": "3.2.0.0",
         "description": "Write custom D3.js v7 visualizations directly inside Power BI",
         "supportUrl": "https://behnamebrahimisbuhb.github.io/pbi-d3js-vis/",
         "gitHubUrl": "https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis"
