@@ -177,7 +177,7 @@ pbi-d3js-vis/
 
 ## 📜 Changelog
 
-### v2.0.0 (2025)
+### v3.0.0 (2025)
 - **Modernised** to `powerbi-visuals-tools` v7, API 5.11.0, D3 v7
 - Replaced `externalJS` array with webpack-bundled npm packages
 - Replaced `DataViewObjectsParser` with `FormattingSettingsModel` (new Format Pane API)
