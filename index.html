@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>D3.js Visual for Power BI</title>
+    <meta name="description" content="Write custom D3.js v7 visualizations directly inside Power BI. A fully sandboxed code editor with live preview." />
+    <meta property="og:title" content="D3.js Visual for Power BI" />
+    <meta property="og:description" content="Write custom D3.js v7 visualizations directly inside Power BI." />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --d3-orange: #F26D58;
+            --d3-amber:  #F9A03C;
+            --pbi-blue:  #0078d4;
+            --text:      #1b1b1b;
+            --text-muted:#6b6b6b;
+            --surface:   #f8f8f8;
+            --border:    #e5e5e5;
+            --code-bg:   #1e1e2e;
+            --radius:    8px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            color: var(--text);
+            background: #fff;
+            line-height: 1.6;
+        }
+
+        /* ── Nav ── */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255,255,255,.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            display: flex; align-items: center; gap: 2rem;
+            height: 56px;
+        }
+        .nav-logo { display: flex; align-items: center; gap: .6rem; font-weight: 700; font-size: 1rem; text-decoration: none; color: var(--text); }
+        .nav-logo svg { width: 28px; height: 28px; }
+        nav a { color: var(--text-muted); text-decoration: none; font-size: .9rem; transition: color .15s; }
+        nav a:hover { color: var(--d3-orange); }
+        .nav-links { display: flex; gap: 1.5rem; margin-left: auto; }
+        .btn {
+            display: inline-flex; align-items: center; gap: .4rem;
+            padding: .45rem 1.1rem; border-radius: 6px; font-size: .875rem;
+            font-weight: 500; text-decoration: none; transition: all .15s;
+            cursor: pointer; border: none;
+        }
+        .btn-primary { background: var(--d3-orange); color: #fff; }
+        .btn-primary:hover { background: #d95a45; color: #fff; }
+        .btn-outline { border: 1px solid var(--border); color: var(--text); background: #fff; }
+        .btn-outline:hover { border-color: var(--d3-orange); color: var(--d3-orange); }
+
+        /* ── Hero ── */
+        .hero {
+            background: linear-gradient(135deg, #fff4f2 0%, #fff9f0 50%, #fff 100%);
+            padding: 6rem 2rem 5rem;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: .4rem;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 999px; padding: .25rem .9rem;
+            font-size: .8rem; color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        .hero-badge span { color: var(--d3-orange); font-weight: 600; }
+        .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.2rem; }
+        .hero h1 em { font-style: normal; color: var(--d3-orange); }
+        .hero p { font-size: 1.1rem; color: var(--text-muted); max-width: 560px; margin: 0 auto 2.5rem; }
+        .hero-actions { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+        .hero-logo { margin: 3rem auto 0; width: 90px; opacity: .9; }
+        .hero-logo svg { width: 90px; height: 90px; }
+
+        /* ── Sections ── */
+        section { padding: 5rem 2rem; }
+        .container { max-width: 960px; margin: 0 auto; }
+        .section-label { font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--d3-orange); margin-bottom: .6rem; }
+        h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; margin-bottom: 1rem; }
+        .section-desc { color: var(--text-muted); max-width: 600px; margin-bottom: 3rem; }
+
+        /* ── Feature grid ── */
+        .features { background: var(--surface); }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+        .feature-card {
+            background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 1.5rem; transition: box-shadow .2s, border-color .2s;
+        }
+        .feature-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.07); border-color: var(--d3-orange); }
+        .feature-icon { font-size: 1.6rem; margin-bottom: .75rem; }
+        .feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: .4rem; }
+        .feature-card p { font-size: .875rem; color: var(--text-muted); }
+
+        /* ── Steps ── */
+        .steps { counter-reset: step; display: flex; flex-direction: column; gap: 2rem; }
+        .step { display: flex; gap: 1.5rem; align-items: flex-start; }
+        .step-num {
+            flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
+            background: var(--d3-orange); color: #fff; font-weight: 700; font-size: .9rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .step-body h3 { font-size: 1rem; font-weight: 600; margin-bottom: .3rem; }
+        .step-body p  { font-size: .9rem; color: var(--text-muted); }
+
+        /* ── API Reference ── */
+        .api-section { background: var(--surface); }
+        .api-table { width: 100%; border-collapse: collapse; font-size: .875rem; background: #fff; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+        .api-table th { background: #f1f1f1; padding: .75rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+        .api-table td { padding: .75rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+        .api-table tr:last-child td { border-bottom: none; }
+        .api-table tr:hover td { background: #fafafa; }
+        code { font-family: 'Fira Code', monospace; font-size: .85em; background: #f0f0f0; padding: .1em .4em; border-radius: 3px; color: #c7254e; }
+        .type { color: var(--pbi-blue); font-family: 'Fira Code', monospace; font-size: .82em; }
+
+        /* ── Code block ── */
+        .code-block {
+            background: var(--code-bg); border-radius: var(--radius);
+            padding: 1.5rem; overflow-x: auto; margin-bottom: 1.5rem;
+            border: 1px solid #2e2e3e;
+        }
+        .code-block pre { color: #cdd6f4; font-family: 'Fira Code', monospace; font-size: .85rem; line-height: 1.7; white-space: pre; }
+        .cm  { color: #6c7086; } /* comment */
+        .kw  { color: #cba6f7; } /* keyword */
+        .fn  { color: #89b4fa; } /* function */
+        .st  { color: #a6e3a1; } /* string */
+        .nm  { color: #fab387; } /* number/const */
+        .op  { color: #89dceb; } /* operator */
+
+        /* ── Download ── */
+        .download-box {
+            border: 2px dashed var(--border); border-radius: var(--radius);
+            padding: 2.5rem; text-align: center; background: var(--surface);
+        }
+        .download-box h3 { font-size: 1.2rem; margin-bottom: .5rem; }
+        .download-box p  { color: var(--text-muted); font-size: .9rem; margin-bottom: 1.5rem; }
+        .version-badge { display: inline-block; background: var(--code-bg); color: #a6e3a1; font-family: 'Fira Code', monospace; font-size: .8rem; padding: .2rem .7rem; border-radius: 4px; margin-bottom: 1.5rem; }
+
+        /* ── Footer ── */
+        footer {
+            background: #111; color: #888; font-size: .85rem;
+            padding: 2.5rem 2rem; text-align: center;
+        }
+        footer a { color: #aaa; text-decoration: none; }
+        footer a:hover { color: var(--d3-orange); }
+        .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; max-width: 960px; margin: 0 auto; }
+
+        @media (max-width: 600px) {
+            .nav-links { display: none; }
+            .hero { padding: 4rem 1.5rem 3rem; }
+            section { padding: 3rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+    <a href="#" class="nav-logo">
+        <svg viewBox="0 0 256 243" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="n1" x1="-82%" y1="-92%" x2="103%" y2="106%"><stop stop-color="#F9A03C" offset="0%"/><stop stop-color="#F7974E" offset="100%"/></linearGradient>
+                <linearGradient id="n4" x1="11%" y1="-1%" x2="82%" y2="92%"><stop stop-color="#F26D58" offset="0%"/><stop stop-color="#F9A03C" offset="100%"/></linearGradient>
+                <linearGradient id="n5" x1="15%" y1="3%" x2="120%" y2="72%"><stop stop-color="#B84E51" offset="0%"/><stop stop-color="#F68E48" offset="100%"/></linearGradient>
+                <linearGradient id="n6" x1="46%" y1="23%" x2="51%" y2="147%"><stop stop-color="#F9A03C" offset="0%"/><stop stop-color="#F7974E" offset="100%"/></linearGradient>
+            </defs>
+            <path d="M255.52,175.6C255.6,174.5 255.7,173.4 255.8,172.2C255.9,170.9 175.2,94.4 175.2,94.4L173.3,94.4C173.3,94.4 255,180.6 255.52,175.6Z" fill="url(#n1)"/>
+            <path d="M255.8,171.6C254.1,210.7 221.7,242 182.1,242L176.8,242L137.3,203.1C140.5,198.5 143.5,193.8 146.2,188.8L182.1,188.8C193.5,188.8 202.7,179.6 202.7,168.2C202.7,156.9 193.5,147.6 182.1,147.6L160.9,147.6C162.5,139.1 163.4,130.2 163.4,121.2C163.4,112 162.5,103.1 160.8,94.4L174,94.4L255.6,174.8C255.7,173.7 255.8,172.7 255.8,171.6ZM21.5,0L0,0L0,53.2L21.5,53.2C59,53.2 89.5,83.7 89.5,121.2C89.5,131.4 87.2,141.1 83.1,149.8L122.3,188.4C135.2,169.1 142.7,146 142.7,121.2C142.7,54.4 88.3,0 21.5,0Z" fill="url(#n4)"/>
+            <path d="M182.1,0L95.2,0C116.4,13 134,31.3 146,53.2L182.1,53.2C193.5,53.2 202.7,62.4 202.7,73.8C202.7,85.2 193.5,94.4 182.1,94.4L174,94.4L255.6,174.8C255.8,172.6 255.9,170.4 255.9,168.2C255.9,150.3 249.5,133.8 238.8,121C249.5,108.2 255.9,91.7 255.9,73.8C255.9,33.1 222.8,0 182.1,0Z" fill="url(#n5)"/>
+            <path d="M176.8,242L95.8,242C112.1,232 126.2,218.7 137.3,203.1L176.8,242ZM122.3,188.4L83.2,149.8C72.3,173 48.8,189.2 21.5,189.2L0,189.2L0,242.4L21.5,242.4C63.5,242.4 100.6,220.9 122.3,188.4Z" fill="url(#n6)"/>
+        </svg>
+        D3.js Visual
+    </a>
+    <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#getting-started">Get started</a>
+        <a href="#api">API</a>
+        <a href="#examples">Examples</a>
+        <a href="https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <a href="https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis/releases/latest" class="btn btn-primary" style="margin-left:auto">
+        ↓ Download
+    </a>
+</nav>
+
+<!-- ── Hero ── -->
+<header class="hero">
+    <div class="hero-badge">✨ <span>v2.0</span> — Now with D3 v7 &amp; API 5.11</div>
+    <h1>Write <em>D3.js</em> code<br/>directly in Power BI</h1>
+    <p>A custom visual with a full code editor, live execution, and access to your report data — no external tools required.</p>
+    <div class="hero-actions">
+        <a href="https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis/releases/latest" class="btn btn-primary">↓ Download .pbiviz</a>
+        <a href="#getting-started" class="btn btn-outline">Get started →</a>
+    </div>
+    <div class="hero-logo">
+        <svg viewBox="0 0 256 243" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="h1" x1="-82%" y1="-92%" x2="103%" y2="106%"><stop stop-color="#F9A03C" offset="0%"/><stop stop-color="#F7974E" offset="100%"/></linearGradient>
+                <linearGradient id="h2" x1="-258%" y1="-248%" x2="97%" y2="98%"><stop stop-color="#F9A03C" offset="0%"/><stop stop-color="#F7974E" offset="100%"/></linearGradient>
+                <linearGradient id="h3" x1="-223%" y1="-261%" x2="94%" y2="101%"><stop stop-color="#F9A03C" offset="0%"/><stop stop-color="#F7974E" offset="100%"/></linearGradient>
+                <linearGradient id="h4" x1="11%" y1="-1%" x2="82%" y2="92%"><stop stop-color="#F26D58" offset="0%"/><stop stop-color="#F9A03C" offset="100%"/></linearGradient>
+                <linearGradient id="h5" x1="15%" y1="3%" x2="120%" y2="72%"><stop stop-color="#B84E51" offset="0%"/><stop stop-color="#F68E48" offset="100%"/></linearGradient>
+                <linearGradient id="h6" x1="46%" y1="23%" x2="51%" y2="147%"><stop stop-color="#F9A03C" offset="0%"/><stop stop-color="#F7974E" offset="100%"/></linearGradient>
+            </defs>
+            <path d="M255.52,175.6C255.6,174.5 255.7,173.4 255.8,172.2C255.9,170.9 175.2,94.4 175.2,94.4L173.3,94.4C173.3,94.4 255,180.6 255.52,175.6Z" fill="url(#h1)"/>
+            <path d="M83.5,149.1C83.4,149.3 83.3,149.5 83.1,149.8C83,150 82.9,150.3 82.8,150.5C80.2,155.9 118.8,193.6 121.9,189C122,188.8 122.2,188.6 122.3,188.4C122.5,188.1 122.6,187.9 122.8,187.7C125.3,183.9 84.6,146.6 83.5,149.1Z" fill="url(#h2)"/>
+            <path d="M138,202.1C137.8,202.3 137.1,203.6 136.4,204.3C136.2,204.6 174,242 174,242L177.4,242C177.4,242 142,203.7 138,202.1Z" fill="url(#h3)"/>
+            <path d="M255.8,171.6C254.1,210.7 221.7,242 182.1,242L176.8,242L137.3,203.1C140.5,198.5 143.5,193.8 146.2,188.8L182.1,188.8C193.5,188.8 202.7,179.6 202.7,168.2C202.7,156.9 193.5,147.6 182.1,147.6L160.9,147.6C162.5,139.1 163.4,130.2 163.4,121.2C163.4,112 162.5,103.1 160.8,94.4L174,94.4L255.6,174.8C255.7,173.7 255.8,172.7 255.8,171.6ZM21.5,0L0,0L0,53.2L21.5,53.2C59,53.2 89.5,83.7 89.5,121.2C89.5,131.4 87.2,141.1 83.1,149.8L122.3,188.4C135.2,169.1 142.7,146 142.7,121.2C142.7,54.4 88.3,0 21.5,0Z" fill="url(#h4)"/>
+            <path d="M182.1,0L95.2,0C116.4,13 134,31.3 146,53.2L182.1,53.2C193.5,53.2 202.7,62.4 202.7,73.8C202.7,85.2 193.5,94.4 182.1,94.4L174,94.4L255.6,174.8C255.8,172.6 255.9,170.4 255.9,168.2C255.9,150.3 249.5,133.8 238.8,121C249.5,108.2 255.9,91.7 255.9,73.8C255.9,33.1 222.8,0 182.1,0Z" fill="url(#h5)"/>
+            <path d="M176.8,242L95.8,242C112.1,232 126.2,218.7 137.3,203.1L176.8,242ZM122.3,188.4L83.2,149.8C72.3,173 48.8,189.2 21.5,189.2L0,189.2L0,242.4L21.5,242.4C63.5,242.4 100.6,220.9 122.3,188.4Z" fill="url(#h6)"/>
+        </svg>
+    </div>
+</header>
+
+<!-- ── Features ── -->
+<section class="features" id="features">
+    <div class="container">
+        <div class="section-label">Features</div>
+        <h2>Everything you need to visualise anything</h2>
+        <p class="section-desc">Built for analysts and developers who want full control without leaving Power BI.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">✏️</div>
+                <h3>In-report code editor</h3>
+                <p>A full CodeMirror editor with syntax highlighting, line numbers, search, and replace — inside Power BI's advanced edit mode.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>D3.js v7 built-in</h3>
+                <p>D3 v7 is bundled and exposed globally. No CDN, no version conflicts. Access it via <code>d3</code> in your scripts.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Live data binding</h3>
+                <p>Your Power BI table data is injected as the <code>pbi.dsv()</code> helper — the same API pattern as D3's CSV loaders.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>8 theme-aware colours</h3>
+                <p>Configurable colour palette in the Format pane, auto-overridden in high-contrast mode for full accessibility.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>JS validation</h3>
+                <p>UglifyJS parses your script before saving. Syntax errors are highlighted and reported with line and column numbers.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">♿</div>
+                <h3>Accessible by default</h3>
+                <p>Full keyboard navigation, high-contrast mode support, focus indicators, ARIA labels, and rendering events.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🖱️</div>
+                <h3>Context menu &amp; selection</h3>
+                <p>Right-click context menu, multi-visual cross-filtering, and the Power BI tooltip service — all exposed in <code>pbi</code>.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <h3>Localisation ready</h3>
+                <p>All UI strings are routed through Power BI's localisation manager. Add a <code>.resjson</code> file for your language.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Getting started ── -->
+<section id="getting-started">
+    <div class="container">
+        <div class="section-label">Getting started</div>
+        <h2>Up and running in three steps</h2>
+        <p class="section-desc">No build environment required — just import the visual and start coding.</p>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h3>Import the visual</h3>
+                    <p>Download the latest <code>.pbiviz</code> from the <a href="https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis/releases/latest" target="_blank" rel="noopener">Releases page</a>, then import it via <em>Insert → Get more visuals → Import a visual from a file</em> in Power BI Desktop or Service.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h3>Connect your data</h3>
+                    <p>Drag any fields (dimensions, measures, or both) into the <strong>Dataset</strong> bucket in the Fields pane. Up to 30,000 rows are supported.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h3>Open the editor and write code</h3>
+                    <p>Click the <strong>pencil / Focus mode</strong> icon in the visual's top-right corner. The CodeMirror editor opens. Write your D3.js v7 script, then press <em>Save</em> to execute it.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── API Reference ── -->
+<section class="api-section" id="api">
+    <div class="container">
+        <div class="section-label">API Reference</div>
+        <h2>The <code>pbi</code> object</h2>
+        <p class="section-desc">Every user script runs with a <code>pbi</code> context object already defined. Use it to access dimensions, data, colours, and Power BI services.</p>
+
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Property / Method</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>pbi.width</code></td>
+                    <td><span class="type">number</span></td>
+                    <td>Usable width of the visual canvas in pixels (after margins).</td>
+                </tr>
+                <tr>
+                    <td><code>pbi.height</code></td>
+                    <td><span class="type">number</span></td>
+                    <td>Usable height of the visual canvas in pixels (after margins).</td>
+                </tr>
+                <tr>
+                    <td><code>pbi.colors</code></td>
+                    <td><span class="type">string[]</span></td>
+                    <td>Array of 8 hex colour strings configured in the Format pane. Auto-substituted with system colours in high-contrast mode.</td>
+                </tr>
+                <tr>
+                    <td><code>pbi.isHighContrast</code></td>
+                    <td><span class="type">boolean</span></td>
+                    <td><code>true</code> when Windows high-contrast / forced-colours mode is active.</td>
+                </tr>
+                <tr>
+                    <td><code>pbi.dsv(accessor?, callback)</code></td>
+                    <td><span class="type">void</span></td>
+                    <td>Provides report data in a D3-compatible callback. Optionally pass an <code>accessor</code> function to transform rows (same pattern as <code>d3.csv()</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>pbi.selectionManager</code></td>
+                    <td><span class="type">ISelectionManager</span></td>
+                    <td>Power BI selection manager — use for cross-filtering and context menus.</td>
+                </tr>
+                <tr>
+                    <td><code>pbi.tooltipService</code></td>
+                    <td><span class="type">ITooltipService</span></td>
+                    <td>Power BI tooltip service — call <code>.show()</code>, <code>.move()</code>, <code>.hide()</code> to display native tooltips.</td>
+                </tr>
+                <tr>
+                    <td><code>pbi.colorPalette</code></td>
+                    <td><span class="type">IColorPalette</span></td>
+                    <td>Power BI colour palette — access the current theme's colours via <code>.getColor(key)</code>.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p style="margin-top:1rem;font-size:.85rem;color:var(--text-muted)">
+            Global: <code>d3</code> (v7) is available everywhere in your script. PBI services are also accessible via <code>window.__pbiD3Visual</code>.
+        </p>
+    </div>
+</section>
+
+<!-- ── Examples ── -->
+<section id="examples">
+    <div class="container">
+        <div class="section-label">Examples</div>
+        <h2>Code samples</h2>
+        <p class="section-desc">Copy-paste these into the editor to get started immediately.</p>
+
+        <h3 style="font-size:1rem;margin-bottom:.75rem;font-weight:600">Bar chart</h3>
+        <div class="code-block"><pre><span class="cm">// Simple bar chart using Power BI data</span>
+<span class="kw">const</span> svg = d3.<span class="fn">select</span>(<span class="st">"#chart"</span>);
+svg.<span class="fn">attr</span>(<span class="st">"width"</span>, pbi.width).<span class="fn">attr</span>(<span class="st">"height"</span>, pbi.height);
+
+pbi.<span class="fn">dsv</span>(<span class="kw">function</span>(data) {
+    <span class="kw">const</span> x = d3.scaleBand()
+        .<span class="fn">domain</span>(data.<span class="fn">map</span>(d => d.category))
+        .<span class="fn">range</span>([<span class="nm">0</span>, pbi.width])
+        .<span class="fn">padding</span>(<span class="nm">0.2</span>);
+
+    <span class="kw">const</span> y = d3.scaleLinear()
+        .<span class="fn">domain</span>([<span class="nm">0</span>, d3.<span class="fn">max</span>(data, d => +d.value)])
+        .<span class="fn">range</span>([pbi.height, <span class="nm">0</span>]);
+
+    svg.<span class="fn">selectAll</span>(<span class="st">"rect"</span>)
+        .<span class="fn">data</span>(data)
+        .<span class="fn">join</span>(<span class="st">"rect"</span>)
+        .<span class="fn">attr</span>(<span class="st">"x"</span>,      d => <span class="fn">x</span>(d.category))
+        .<span class="fn">attr</span>(<span class="st">"y"</span>,      d => <span class="fn">y</span>(+d.value))
+        .<span class="fn">attr</span>(<span class="st">"width"</span>,  x.<span class="fn">bandwidth</span>())
+        .<span class="fn">attr</span>(<span class="st">"height"</span>, d => pbi.height - <span class="fn">y</span>(+d.value))
+        .<span class="fn">attr</span>(<span class="st">"fill"</span>,   pbi.colors[<span class="nm">0</span>]);
+});</pre></div>
+
+        <h3 style="font-size:1rem;margin-bottom:.75rem;font-weight:600">Donut chart</h3>
+        <div class="code-block"><pre><span class="kw">const</span> svg  = d3.<span class="fn">select</span>(<span class="st">"#chart"</span>);
+<span class="kw">const</span> cx   = pbi.width  / <span class="nm">2</span>;
+<span class="kw">const</span> cy   = pbi.height / <span class="nm">2</span>;
+<span class="kw">const</span> r    = Math.<span class="fn">min</span>(cx, cy) * <span class="nm">0.9</span>;
+<span class="kw">const</span> g    = svg.<span class="fn">append</span>(<span class="st">"g"</span>).<span class="fn">attr</span>(<span class="st">"transform"</span>, <span class="st">`translate(${cx},${cy})`</span>);
+
+pbi.<span class="fn">dsv</span>(<span class="kw">function</span>(data) {
+    <span class="kw">const</span> pie  = d3.<span class="fn">pie</span>().<span class="fn">value</span>(d => +d.value);
+    <span class="kw">const</span> arc  = d3.<span class="fn">arc</span>().<span class="fn">innerRadius</span>(r * <span class="nm">0.5</span>).<span class="fn">outerRadius</span>(r);
+    <span class="kw">const</span> arcs = pie(data);
+
+    g.<span class="fn">selectAll</span>(<span class="st">"path"</span>)
+        .<span class="fn">data</span>(arcs)
+        .<span class="fn">join</span>(<span class="st">"path"</span>)
+        .<span class="fn">attr</span>(<span class="st">"d"</span>,    arc)
+        .<span class="fn">attr</span>(<span class="st">"fill"</span>, (_, i) => pbi.colors[i % pbi.colors.length])
+        .<span class="fn">attr</span>(<span class="st">"stroke"</span>, <span class="st">"#fff"</span>)
+        .<span class="fn">attr</span>(<span class="st">"stroke-width"</span>, <span class="nm">2</span>);
+});</pre></div>
+    </div>
+</section>
+
+<!-- ── Download ── -->
+<section id="download" style="background:var(--surface)">
+    <div class="container">
+        <div class="section-label">Download</div>
+        <h2>Get the visual</h2>
+        <p class="section-desc">Import the <code>.pbiviz</code> file into Power BI Desktop or Service.</p>
+        <div class="download-box">
+            <h3>D3.js Visual for Power BI</h3>
+            <div class="version-badge">v2.0.0.0 · API 5.11 · D3 v7</div>
+            <p>Built with powerbi-visuals-tools v7 · TypeScript · CodeMirror 5 · UglifyJS</p>
+            <a href="https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis/releases/latest" class="btn btn-primary" target="_blank" rel="noopener">↓ Download latest release</a>
+            &nbsp;
+            <a href="https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis" class="btn btn-outline" target="_blank" rel="noopener">View source on GitHub</a>
+        </div>
+    </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+    <div class="footer-inner">
+        <span>© 2025 <a href="https://github.com/BehnamEbrahimiSBUHB" target="_blank" rel="noopener">Behnam Ebrahimi</a>. MIT License.</span>
+        <span>
+            <a href="https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis" target="_blank" rel="noopener">GitHub</a> ·
+            <a href="https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis/issues" target="_blank" rel="noopener">Issues</a> ·
+            <a href="https://github.com/BehnamEbrahimiSBUHB/pbi-d3js-vis/releases" target="_blank" rel="noopener">Releases</a>
+        </span>
+        <span>Originally forked from <a href="https://github.com/liprec/powerbi-d3jsvisual" target="_blank" rel="noopener">liprec/powerbi-d3jsvisual</a></span>
+    </div>
+</footer>
+
+</body>
+</html>
