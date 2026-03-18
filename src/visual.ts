@@ -445,6 +445,8 @@ export class pbiD3jsVis implements IVisual {
             console.error("D3.js visual update error:", e);
             this.lastError = String(e) + "\n" + ((e as any)?.stack || "");
             if (this.events) { this.events.renderingFailed(options, String(e)); }
+            // Show error visually on screen for debugging
+            this.target.innerHTML = `<div style="padding:12px;font-family:Consolas,monospace;font-size:12px;color:#c00;white-space:pre-wrap;word-break:break-all;background:#fff8f8;border:2px solid #c00;margin:4px;overflow:auto;max-height:100%"><b>pbi-d3js-vis v3.1.0.0 ERROR</b>\n\n${String(e)}\n\n${(e as any)?.stack || ""}</div>`;
         }
     }
 
