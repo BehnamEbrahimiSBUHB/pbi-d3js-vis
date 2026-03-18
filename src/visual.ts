@@ -132,6 +132,7 @@ export class D3JSVisual implements IVisual {
     private isSaved: boolean     = true;
     private reload: boolean      = false;
     private initialized: boolean = false;
+    private lastError: string    = "";
 
     // ---- DOM selections ----
     private editContainer: d3.Selection<HTMLDivElement, unknown, null, undefined>;
@@ -221,7 +222,13 @@ export class D3JSVisual implements IVisual {
         this.formattingSettingsService = new FormattingSettingsService();
         this.events            = options.host.eventService;
         this.selectionManager  = options.host.createSelectionManager();
-        this.localizationManager = options.host.createLocalizationManager();
+
+        try {
+            this.localizationManager = options.host.createLocalizationManager();
+        } catch (_) {
+            // Localization manager may not be available in all hosts
+            this.localizationManager = null;
+        }
 
         // Expose d3 and PBI services globally so user-authored eval'd scripts can reference them
         (window as any).d3 = d3;
@@ -291,6 +298,43 @@ export class D3JSVisual implements IVisual {
             .classed(D3JSVisual.MessageBoxEl.className, true)
             .style("display", "none") as d3.Selection<HTMLDivElement, unknown, null, undefined>;
 
+        // Version label (visible in editor mode for debugging)
+        editorHeader
+            .append("div")
+            .style("float", "right")
+            .style("font-size", "10px")
+            .style("color", "#999")
+            .style("line-height", "24px")
+            .style("margin-right", "8px")
+            .style("user-select", "text")
+            .text("v3.0.4.0");
+
+        // Debug copy button — copies last error to clipboard
+        this.lastError = "";
+        editorHeader
+            .append("div")
+            .style("float", "right")
+            .style("font-size", "10px")
+            .style("color", "#c00")
+            .style("line-height", "24px")
+            .style("margin-right", "6px")
+            .style("cursor", "pointer")
+            .text("📋 Copy Debug")
+            .on("click", () => {
+                const info = [
+                    "Visual: pbi-d3js-vis v3.0.4.0",
+                    "API: 5.11.0",
+                    "Last error: " + (this.lastError || "(none)"),
+                    "Module parse: " + (() => { try { const r = UglifyJS.minify("const x=1;", {compress:false,mangle:false,module:true} as any) as any; return r.error ? "FAIL: "+r.error.message : "OK"; } catch(e) { return "EXCEPTION: "+e; } })(),
+                    "UglifyJS version: " + ((UglifyJS as any).version || "unknown"),
+                ].join("\n");
+                navigator.clipboard.writeText(info).then(() => {
+                    window.alert("Debug info copied to clipboard!");
+                }).catch(() => {
+                    window.prompt("Copy this:", info);
+                });
+            });
+
         // CodeMirror textarea placeholder
         this.editContainer
             .append("textarea")
@@ -347,8 +391,9 @@ export class D3JSVisual implements IVisual {
     // ---------------------------------------------------------------------------
 
     public update(options: VisualUpdateOptions): void {
-        this.events.renderingStarted(options);
         try {
+            if (this.events) { this.events.renderingStarted(options); }
+
             // One-time DOM initialisation
             if (!this.initialized) {
                 this.initialized = true;
@@ -357,7 +402,8 @@ export class D3JSVisual implements IVisual {
             this.viewport = options.viewport;
 
             // ---- Landing page decision (done first, before anything can throw) ----
-            const hasData    = (options.dataViews?.length ?? 0) > 0;
+            const hasData    = (options.dataViews?.length ?? 0) > 0
+                && (options.dataViews[0]?.table?.rows?.length ?? 0) > 0;
             const inEditMode = options.editMode === EditMode.Advanced;
             const objects    = options.dataViews?.[0]?.metadata?.objects;
             this.jsCode      = (objects?.general?.js  as string) ?? "";
@@ -374,12 +420,12 @@ export class D3JSVisual implements IVisual {
 
             // Early exit — nothing more to do while the landing page is visible
             if (showLanding) {
-                this.events.renderingFinished(options);
+                if (this.events) { this.events.renderingFinished(options); }
                 return;
             }
 
             // ---- Normal rendering path ----
-            this.isHighContrast = this.host.colorPalette.isHighContrast;
+            this.isHighContrast = this.host.colorPalette?.isHighContrast ?? false;
             (window as any).__pbiD3Visual.isHighContrast = this.isHighContrast;
             (window as any).__pbiD3Visual.colorPalette   = this.host.colorPalette;
 
@@ -394,9 +440,11 @@ export class D3JSVisual implements IVisual {
                 this.renderVisual(options);
             }
 
-            this.events.renderingFinished(options);
+            if (this.events) { this.events.renderingFinished(options); }
         } catch (e) {
-            this.events.renderingFailed(options, String(e));
+            console.error("D3.js visual update error:", e);
+            this.lastError = String(e) + "\n" + ((e as any)?.stack || "");
+            if (this.events) { this.events.renderingFailed(options, String(e)); }
         }
     }
 
@@ -413,7 +461,11 @@ export class D3JSVisual implements IVisual {
     // ---------------------------------------------------------------------------
 
     private loc(key: string): string {
-        return this.localizationManager.getDisplayName(key) || key;
+        try {
+            return this.localizationManager?.getDisplayName(key) || key;
+        } catch (_) {
+            return key;
+        }
     }
 
     private buildLandingPage(): void {
@@ -802,10 +854,12 @@ export class D3JSVisual implements IVisual {
         if (result.error !== undefined) {
             const { message, line, col } = result.error;
             const selectLen = result.error.message.startsWith("Replace") ? ('d3.select("svg")').length : 1;
+            const errText = `Parse error: ${message} at (${line}:${col})`;
+            this.lastError = errText + " | options: " + JSON.stringify({compress:false,mangle:false,module:true});
             MessageBox.setMessageBox({
                 type: MessageBoxType.Error,
                 base: this.messageBox,
-                text: `Parse error: ${message} at (${line}:${col})`
+                text: errText
             });
             editor.getDoc().setSelection(
                 { line: line - 1, ch: col },
