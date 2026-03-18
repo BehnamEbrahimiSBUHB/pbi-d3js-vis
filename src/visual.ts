@@ -784,7 +784,7 @@ export class D3JSVisual implements IVisual {
     private parseCode(editor: CodeMirror.EditorFromTextArea, type: D3JSVisualType): boolean {
         if (type !== D3JSVisualType.Js) { return true; }
 
-        const result = UglifyJS.minify(editor.getValue(), { compress: false, mangle: false }) as unknown as CompileOutput;
+        const result = UglifyJS.minify(editor.getValue(), { compress: false, mangle: false, parse: { bare_returns: true } as any, output: { ecma: 2020 } as any }) as unknown as CompileOutput;
 
         // Warn if user references the old d3.select("svg") selector
         const cursor = editor.getDoc().getSearchCursor('d3.select("svg")');
