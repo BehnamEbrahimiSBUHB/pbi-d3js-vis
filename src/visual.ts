@@ -307,7 +307,7 @@ export class pbiD3jsVis implements IVisual {
             .style("line-height", "24px")
             .style("margin-right", "8px")
             .style("user-select", "text")
-            .text("v3.0.7.0");
+            .text("v3.1.0.0");
 
         // Debug copy button — copies last error to clipboard
         this.lastError = "";
@@ -322,7 +322,7 @@ export class pbiD3jsVis implements IVisual {
             .text("📋 Copy Debug")
             .on("click", () => {
                 const info = [
-                    "Visual: pbi-d3js-vis v3.0.7.0",
+                    "Visual: pbi-d3js-vis v3.1.0.0",
                     "API: 5.11.0",
                     "Last error: " + (this.lastError || "(none)"),
                     "Module parse: " + (() => { try { const r = UglifyJS.minify("const x=1;", {compress:false,mangle:false,module:true} as any) as any; return r.error ? "FAIL: "+r.error.message : "OK"; } catch(e) { return "EXCEPTION: "+e; } })(),
