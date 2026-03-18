@@ -129,8 +129,9 @@ export class D3JSVisual implements IVisual {
     private D3jsheight: number = 0;
     private isHighContrast: boolean = false;
     private open: D3JSVisualType = D3JSVisualType.Js;
-    private isSaved: boolean = true;
-    private reload: boolean  = false;
+    private isSaved: boolean     = true;
+    private reload: boolean      = false;
+    private initialized: boolean = false;
 
     // ---- DOM selections ----
     private editContainer: d3.Selection<HTMLDivElement, unknown, null, undefined>;
@@ -349,43 +350,47 @@ export class D3JSVisual implements IVisual {
         this.events.renderingStarted(options);
         try {
             // One-time DOM initialisation
-            if (!this.viewport) {
-                this.viewport = options.viewport;
+            if (!this.initialized) {
+                this.initialized = true;
                 this.init(options);
             }
             this.viewport = options.viewport;
 
-            // Track high-contrast mode and expose to user scripts
+            // ---- Landing page decision (done first, before anything can throw) ----
+            const hasData    = (options.dataViews?.length ?? 0) > 0;
+            const inEditMode = options.editMode === EditMode.Advanced;
+            const objects    = options.dataViews?.[0]?.metadata?.objects;
+            this.jsCode      = (objects?.general?.js  as string) ?? "";
+            this.cssCode     = (objects?.general?.css as string) ?? "";
+
+            const showLanding = !inEditMode && (!hasData || this.jsCode === "");
+
+            this.landingPage
+                .style("display", showLanding ? "flex" : "none")
+                .style("width",   toPx(this.viewport.width))
+                .style("height",  toPx(this.viewport.height));
+            this.editContainer.style("display", inEditMode                     ? "inline" : "none");
+            this.d3Container.style("display",   !inEditMode && !showLanding    ? "inline" : "none");
+
+            // Early exit — nothing more to do while the landing page is visible
+            if (showLanding) {
+                this.events.renderingFinished(options);
+                return;
+            }
+
+            // ---- Normal rendering path ----
             this.isHighContrast = this.host.colorPalette.isHighContrast;
             (window as any).__pbiD3Visual.isHighContrast = this.isHighContrast;
             (window as any).__pbiD3Visual.colorPalette   = this.host.colorPalette;
 
-            // Populate formatting-model from the dataView
             this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(
                 VisualFormattingSettingsModel,
                 options.dataViews?.[0]
             );
 
-            // Read hidden JS / CSS code from the dataView objects
-            const objects = options.dataViews?.[0]?.metadata?.objects;
-            this.jsCode  = (objects?.general?.js  as string) ?? "";
-            this.cssCode = (objects?.general?.css as string) ?? "";
-
-            const hasData   = (options.dataViews?.length ?? 0) > 0;
-            const inEditMode = options.editMode === EditMode.Advanced;
-
-            // Landing page: show when not in edit mode AND (no data OR no code)
-            const showLanding = !inEditMode && (!hasData || this.jsCode === "");
-            this.landingPage
-                .style("display", showLanding ? "flex" : "none")
-                .style("width",   toPx(this.viewport.width))
-                .style("height",  toPx(this.viewport.height));
-            this.editContainer.style("display", inEditMode   ? "inline" : "none");
-            this.d3Container.style("display",   (!inEditMode && !showLanding) ? "inline" : "none");
-
             if (inEditMode) {
                 this.renderEdit();
-            } else if (!showLanding) {
+            } else {
                 this.renderVisual(options);
             }
 
